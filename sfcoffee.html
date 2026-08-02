@@ -1,1 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bay Area Ethical Coffee Map</title>
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 
+  <style>
+    :root {
+      --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-family);
+      display: flex; flex-direction: column;
+      height: 100vh; width: 100vw; overflow: hidden;
+      background-color: #f8f9fa;
+    }
+    header {
+      background-color: #1e293b; color: #ffffff;
+      padding: 12px 16px; z-index: 1000;
+    }
+    header h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
+    .disclaimer { font-size: 0.75rem; color: #94a3b8; }
+    
+    .controls-bar {
+      background: #ffffff; padding: 10px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex; flex-wrap: wrap; align-items: center;
+      justify-content: space-between; gap: 10px; z-index: 1000;
+    }
+    .filter-group {
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 12px; font-size: 0.85rem; font-weight: 600; color: #334155;
+    }
+    .filter-group label {
+      display: flex; align-items: center; gap: 5px;
+      cursor: pointer; padding: 4px 8px; border-radius: 4px;
+      background: #f1f5f9;
+    }
+    .location-btn {
+      background-color: #2563eb; color: #fff; border: none;
+      padding: 8px 14px; font-size: 0.85rem; font-weight: 600;
+      border-radius: 6px; cursor: pointer; transition: background 0.2s;
+    }
+    .location-btn:hover { background-color: #1d4ed8; }
+    #map { flex: 1; width: 100%; height: 100%; z-index: 1; }
+
+    .popup-container { font-size: 0.85rem; color: #1e293b; max-width: 280px; }
+    .popup-title { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .popup-address { font-size: 0.8rem; color: #64748b; margin-bottom: 6px; }
+    .popup-website { display: inline-block; color: #2563eb; font-weight: 600; text-decoration: none; margin-bottom: 8px; }
+    
+    .category-section { margin-top: 6px; font-size: 0.78rem; line-height: 1.4; }
+    .category-tag {
+      display: inline-block; padding: 2px 6px; border-radius: 4px;
+      font-size: 0.7rem; font-weight: 700; color: #fff; margin-right: 4px;
+    }
+    .matched-terms {
+      color: #334155; font-weight: 600; font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Bay Area Coffee Ethics Map</h1>
+    <div class="disclaimer">San Francisco, Oakland & Bay Area Coffee Shops</div>
+  </header>
+
+  <div class="controls-bar">
+    <div class="filter-group">
+      <span>Filter Categories:</span>
+      <label><input type="checkbox" id="chk-eco" checked /> Eco / Sustainability</label>
+      <label><input type="checkbox" id="chk-ethical" checked /> Ethical / Fair Trade</label>
+      <label><input type="checkbox" id="chk-relational" checked /> Relational / Direct</label>
+    </div>
+    <button class="location-btn" id="btn-location">📍 Find My Location</button>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const CSV_FILENAME = "https://raw.githubusercontent.com/ethicalcoffeesite/sf/refs/heads/main/SF_coffee_ethics_geocoded_optimized.csv";
+
+    const COLOR_ALL_THREE   = "#064e3b";
+    const COLOR_FAIR_ECO    = "#059669";
+    const COLOR_FAIR_REL    = "#10b981";
+    const COLOR_REL_ECO     = "#047857";
+    const COLOR_REL_ONLY    = "#34d399";
+    const COLOR_ECO_ONLY    = "#8b5cf6";
+    const COLOR_NON_ETHICAL = "#94a3b8";
+
+    const map = L.map("map", { center: [37.7749, -122.38], zoom: 12 });
+
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    let coffeeData = [];
+    let layerGroup = L.layerGroup().addTo(map);
+    let userLocationMarker = null;
+
+    function getProp(obj, propName) {
+      if (!obj) return "";
+      const target = propName.toLowerCase().trim();
+      for (let key in obj) {
+        if (key.toLowerCase().trim() === target) return obj[key];
+      }
+      return "";
+    }
+
+    function evaluateCategories(row) {
+      const ecoRaw = getProp(row, "Eco & Sustainability Terms");
+      const ethicalRaw = getProp(row, "Ethical & Slave-Free Terms");
+      const relationalRaw = getProp(row, "Relational & Direct Terms");
+
+      const eco = ecoRaw && ecoRaw.trim() !== "N/A" && ecoRaw.trim() !== "";
+      const ethical = ethicalRaw && ethicalRaw.trim() !== "N/A" && ethicalRaw.trim() !== "";
+      const relational = relationalRaw && relationalRaw.trim() !== "N/A" && relationalRaw.trim() !== "";
+
+      const count = (eco ? 1 : 0) + (ethical ? 1 : 0) + (relational ? 1 : 0);
+      let color = COLOR_NON_ETHICAL;
+
+      if (eco && ethical && relational) color = COLOR_ALL_THREE;
+      else if (ethical && eco) color = COLOR_FAIR_ECO;
+      else if (relational && eco) color = COLOR_REL_ECO;
+      else if (ethical || relational) color = COLOR_FAIR_REL;
+      else if (eco) color = COLOR_ECO_ONLY;
+
+      return { 
+        eco, 
+        ethical, 
+        relational, 
+        count, 
+        color,
+        ecoTerms: eco ? ecoRaw.trim() : "",
+        ethicalTerms: ethical ? ethicalRaw.trim() : "",
+        relationalTerms: relational ? relationalRaw.trim() : ""
+      };
+    }
+
+    function renderMap() {
+      layerGroup.clearLayers();
+
+      const filterEco = document.getElementById("chk-eco").checked;
+      const filterEthical = document.getElementById("chk-ethical").checked;
+      const filterRelational = document.getElementById("chk-relational").checked;
+
+      const bounds = [];
+
+      coffeeData.forEach(item => {
+        const lat = parseFloat(getProp(item, "Latitude"));
+        const lng = parseFloat(getProp(item, "Longitude"));
+
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        const cats = evaluateCategories(item);
+        const isEthical = cats.count > 0;
+
+        let isVisible = false;
+        if (isEthical) {
+          if (filterEco && cats.eco) isVisible = true;
+          if (filterEthical && cats.ethical) isVisible = true;
+          if (filterRelational && cats.relational) isVisible = true;
+        } else {
+          isVisible = true;
+        }
+
+        if (!isVisible) return;
+
+        bounds.push([lat, lng]);
+
+        if (!isEthical) {
+          L.circleMarker([lat, lng], {
+            radius: 4, 
+            fillColor: COLOR_NON_ETHICAL, 
+            color: "#64748b",
+            weight: 1, 
+            opacity: 0.5, 
+            fillOpacity: 0.4, 
+            interactive: false
+          }).addTo(layerGroup);
+        } else {
+          const marker = L.circleMarker([lat, lng], {
+            radius: 8, 
+            fillColor: cats.color, 
+            color: "#ffffff",
+            weight: 1.5, 
+            opacity: 1, 
+            fillOpacity: 0.9, 
+            interactive: true,
+            zIndexOffset: 1000
+          });
+
+          const name = getProp(item, "Name") || "Unknown Shop";
+          const address = getProp(item, "Address") || "";
+          const website = getProp(item, "Website");
+
+          // Build dynamic details breakdown for matching terms
+          let termsBreakdownHtml = "";
+          
+          if (cats.eco) {
+            termsBreakdownHtml += `
+              <div class="category-section">
+                <span class="category-tag" style="background:${COLOR_ECO_ONLY}">Eco</span>
+                <span class="matched-terms">${cats.ecoTerms}</span>
+              </div>`;
+          }
+          if (cats.ethical) {
+            termsBreakdownHtml += `
+              <div class="category-section">
+                <span class="category-tag" style="background:${COLOR_FAIR_REL}">Ethical</span>
+                <span class="matched-terms">${cats.ethicalTerms}</span>
+              </div>`;
+          }
+          if (cats.relational) {
+            termsBreakdownHtml += `
+              <div class="category-section">
+                <span class="category-tag" style="background:${COLOR_REL_ONLY}; color:#0f172a">Relational</span>
+                <span class="matched-terms">${cats.relationalTerms}</span>
+              </div>`;
+          }
+
+          const popupContent = `
+            <div class="popup-container">
+              <div class="popup-title">${name}</div>
+              <div class="popup-address">${address}</div>
+              ${website && website !== "N/A" ? `<a href="${website}" target="_blank" class="popup-website">🌐 Visit Website</a>` : ''}
+              <div>${termsBreakdownHtml}</div>
+            </div>
+          `;
+
+          marker.bindPopup(popupContent);
+          layerGroup.addLayer(marker);
+        }
+      });
+
+      if (bounds.length > 0 && !userLocationMarker) {
+        map.fitBounds(bounds, { padding: [40, 40] });
+      }
+    }
+
+    // 1. LOCATION FEATURE IMPLEMENTATION
+    document.getElementById("btn-location").addEventListener("click", () => {
+      const btn = document.getElementById("btn-location");
+
+      if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
+      }
+
+      btn.textContent = "⌛ Locating...";
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          if (userLocationMarker) {
+            map.removeLayer(userLocationMarker);
+          }
+
+          // Blue dot marker for user's location
+          userLocationMarker = L.circleMarker([lat, lng], {
+            radius: 9,
+            fillColor: "#2563eb",
+            color: "#ffffff",
+            weight: 3,
+            opacity: 1,
+            fillOpacity: 1
+          }).addTo(map);
+
+          userLocationMarker.bindPopup("<b> You are here</b>").openPopup();
+          map.setView([lat, lng], 14);
+
+          btn.textContent = "📍 Location Found";
+        },
+        (error) => {
+          btn.textContent = "📍 Find My Location";
+          alert("Could not retrieve your location. Please check browser permissions.");
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    // Dynamic Filter Listeners
+    document.getElementById("chk-eco").addEventListener("change", renderMap);
+    document.getElementById("chk-ethical").addEventListener("change", renderMap);
+    document.getElementById("chk-relational").addEventListener("change", renderMap);
+
+    // Fast CSV Parsing
+    Papa.parse(CSV_FILENAME, {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: function(results) {
+        coffeeData = results.data.sort((a, b) => {
+          const countA = evaluateCategories(a).count;
+          const countB = evaluateCategories(b).count;
+          return countA - countB; 
+        });
+
+        renderMap();
+      }
+    });
+  </script>
+</body>
+</html>
