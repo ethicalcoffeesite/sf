@@ -27,6 +27,52 @@
     }
     header h1 { font-size: 1.25rem; font-weight: 700; margin-bottom: 4px; }
     .disclaimer { font-size: 0.75rem; color: #94a3b8; }
+
+    .header-links {
+    font-size: 0.95rem; /* Significantly smaller than H1 */
+    margin-top: -5px;
+    margin-bottom: 12px;
+   }
+    
+    .header-links a {
+    color: #4a3b32; /* Warm coffee brown instead of default blue */
+    text-decoration: none;
+    font-weight: 600;
+   }
+
+  .header-links a:hover {
+    text-decoration: underline;
+   }
+    
+    .disclaimer-dropdown {
+    font-size: 0.85rem;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 8px 12px;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: left;
+    cursor: pointer;
+   }
+
+  .disclaimer-dropdown summary {
+    font-weight: bold;
+    color: #555;
+    outline: none;
+   }
+
+  .disclaimer-content {
+    margin-top: 10px;
+    color: #666;
+    line-height: 1.4;
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+   }
+
+  .disclaimer-content p {
+    margin: 4px 0;
+   }
     
     .controls-bar {
       background: #ffffff; padding: 10px 16px;
@@ -70,12 +116,18 @@
 
   <header>
     <h1>Bay Area Coffee Ethics Map</h1>
-    <h2>
-    <a href="https://ethicalcoffeesite.github.io">Ethical Coffee Site</a> | 
-    <a href="https://ethicalcoffeesite.github.io/purpose.html">Our Purpose</a>
-    </h2>
-    <div class="disclaimer">Last updated 8/1/2026. South SF coming soon. </strong> A note on method: Information is gathered by scanning publicly listed coffee shop websites on Google for key terms related to sustainability, direct trade, fair wages, and ethical labor standards. A "hit" on this list doesn't necessarily mean that all products sold by the shop are ethical, only that they carry ethical options (as listed). Other ethical coffee options do exist. This website WILL miss any coffee shop without a website, and WILL miss and coffee shops with websites that lacks information about coffee sourcing.  
-    </div>
+    <nav class="header-links">
+      <a href="https://ethicalcoffeesite.github.io">Ethical Coffee Site</a> | 
+      <a href="https://ethicalcoffeesite.github.io/purpose.html">Our Purpose</a>
+    </nav>
+
+    <details class="disclaimer-dropdown">
+      <summary>Map Info & Methodology (Last updated 8/1/2026)</summary>
+      <div class="disclaimer-content">
+        <p>South SF coming soon.</p>
+        <p><strong>A note on method:</strong> Information is gathered by scanning publicly listed coffee shop websites on Google for key terms related to sustainability, direct trade, fair wages, and ethical labor standards. A "hit" on this list doesn't necessarily mean that all products sold by the shop are ethical, only that they carry ethical options (as listed). Other ethical coffee options do exist. This website WILL miss any coffee shop without a website, and WILL miss coffee shops with websites that lack information about coffee sourcing.</p>
+      </div>
+    </details>
   </header>
 
   <div class="controls-bar">
