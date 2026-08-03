@@ -37,7 +37,7 @@ Latitude,Longitude,Address,Name,Website,Time Added,Eco & Sustainability Terms,Et
 37.772436,-122.412911,"1415 Folsom St, San Francisco, CA 94103",Sextant Coffee Roasters,http://sextantcoffee.com/,21:29:17,organic,,"single origin, traceable",We’re lucky enough to be able to buy this coffee directly from this region through an export company
 37.778161,-122.404724,"345 6th St, San Francisco, CA 94103",Telescope Coffee,http://telescopecoffee.com/,21:29:18,,,,No match found on page.
 37.784337,-122.408088,"902 Market St, San Francisco, CA 94102",Cable Car CoffeeSF,http://cablecarcoffeesf.com/,21:29:20,,,,No match found on page.
-37.77323,-122.435463,"991 Oak St, San Francisco, CA 94117",Third Wheel Coffee,http://www.thirdwheel.coffee/,21:29:22,,,,No match found on page.
+37.77323,-122.435463,"991 Oak St, San Francisco, CA 94117",Third Wheel Coffee,http://www.thirdwheel.coffee/,21:29:22,,"responsibly traded",,No match found on page.
 37.776543,-122.408409,"1116 Folsom St, San Francisco, CA 94103",The Nosh Box,http://noshboxsf.com/,21:29:24,,,,No match found on page.
 37.758044,-122.390436,"900 22nd St, San Francisco, CA 94107",CoffeeShop | Bakery + Micro-Roastery,https://coffeeshopsf.com/,21:29:25,,,,No match found on page.
 37.772998,-122.419337,"30 Otis St, San Francisco, CA 94103",Progeny Coffee,https://www.progenycoffee.com/,21:29:27,compostable,fair trade,"single origin, full traceability","Sustainability 
@@ -261,7 +261,7 @@ Latitude,Longitude,Address,Name,Website,Time Added,Eco & Sustainability Terms,Et
 37.774598,-122.442618,"1594 Hayes St, San Francisco, CA 94117",Ooru Coffee Pop-Up,,21:50:23,,,,
 37.773567,-122.447813,"1901 Hayes St, San Francisco, CA 94117",Karma Cafe,https://www.karmacafesf.net/,21:50:28,,,,
 37.769988,-122.44565,"1401 Haight St, San Francisco, CA 94117",The Mellow,http://www.themellowsf.com/,21:50:31,,,,
-37.770066,-122.445025,"1206 Masonic Ave, San Francisco, CA 94117",Coffee To The People,,21:50:41,,,,
+37.770066,-122.445025,"1206 Masonic Ave, San Francisco, CA 94117",Coffee To The People,,21:50:41,organic,,"fair-trade",
 37.769988,-122.44565,"1401 Haight St, San Francisco, CA 94117",Mellow Coffee,http://www.sfmellowcoffee.com/,21:50:45,,,,
 37.770552,-122.443958,"1300 Haight St, San Francisco, CA 94117",The Coffee Lama,,21:50:47,,,,
 37.765296,-122.450152,"925 Cole St, San Francisco, CA 94117",Double Black,http://www.yardsale.day/pages/double-black,21:50:55,,,,
@@ -445,7 +445,7 @@ Latitude,Longitude,Address,Name,Website,Time Added,Eco & Sustainability Terms,Et
 37.777401,-122.395177,"685 4th St, San Francisco, CA 94107",Coffee Wafflee,https://www.coffeewafflee.com/,22:18:18,,,,
 37.771107,-122.391735,"626 Mission Bay Blvd North, San Francisco, CA 94158",Fanoos Coffee,http://fanooscoffees.com/,22:18:20,,ethically sourced,"single origin, single-origin",
 37.7783,-122.410305,"160 7th St, San Francisco, CA 94103",Caffe Moda,,22:18:22,,,,
-37.775534,-122.415908,"1398 Mission St, San Francisco, CA 94103",Cumaica: Artesanos del Cafe,http://cumaica.com/,22:18:25,,,,
+37.775534,-122.415908,"1398 Mission St, San Francisco, CA 94103",Cumaica: Artesanos del Cafe,http://cumaica.com/,22:18:25,organic,,fair-trade,
 37.762469,-122.395984,"1315 18th St, San Francisco, CA 94107",Farley's Coffeehouse,http://www.farleyscoffee.com/,22:18:38,,,,
 37.757903,-122.394718,"1302 22nd St, San Francisco, CA 94107",Ikon Coffee,http://www.ikoncoffee.com/,22:18:42,,,"single origin, single-origin",
 37.763715,-122.395189,"1125 Mariposa St, San Francisco, CA 94107",Linea Coffee Roasting + Caffe,https://lineacaffe.com/,22:18:57,"organic, regenerative, certified organic",,,
